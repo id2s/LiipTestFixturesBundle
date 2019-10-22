@@ -13,6 +13,7 @@ namespace Liip\TestFixturesBundle\Services\DatabaseBackup;
 
 use Doctrine\Common\DataFixtures\Executor\AbstractExecutor;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use MongoDB\Driver\Server;
 
 /**
  * @author Aleksey Tupichenkov <alekseytupichenkov@gmail.com>
@@ -57,10 +58,9 @@ final class MongodbDatabaseBackup extends AbstractDatabaseBackup implements Data
         if (!self::$databases) {
             self::$databases = [];
             foreach ($dm->getDocumentDatabases() as $db) {
-                $hosts = $db->getConnection()->getMongoClient()->getHosts();
-
-                foreach ($hosts as $host) {
-                    self::$databases[$db->getName()] = $host;
+                /** @var Server $host */
+                foreach ($db->getManager()->getServers() as $host) {
+                    self::$databases[$db->getDatabaseName()] = ['host' => $host->getHost(), 'port' => $host->getPort()];
                 }
             }
         }
@@ -94,8 +94,7 @@ final class MongodbDatabaseBackup extends AbstractDatabaseBackup implements Data
             $dbHost = $server['host'];
             $dbPort = $server['port'];
 
-            $connection->dropDatabase($dbName);
-            exec("mongorestore --quiet --db $dbName --host $dbHost --port $dbPort {$this->getBackupFilePath()}/$dbName", $output);
+            exec("mongorestore --drop --quiet --db $dbName --host $dbHost --port $dbPort {$this->getBackupFilePath()}/$dbName", $output);
         }
 
         if (self::$metadata) {
