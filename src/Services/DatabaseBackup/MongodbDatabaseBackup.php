@@ -38,9 +38,7 @@ final class MongodbDatabaseBackup extends AbstractDatabaseBackup implements Data
 
     protected function getReferenceBackup(): string
     {
-        if (empty(self::$referenceData)) {
-            self::$referenceData = file_get_contents($this->getReferenceBackupFilePath());
-        }
+        self::$referenceData = file_get_contents($this->getReferenceBackupFilePath());
 
         return self::$referenceData;
     }
