@@ -88,7 +88,6 @@ final class MongodbDatabaseBackup extends AbstractDatabaseBackup implements Data
     {
         /** @var DocumentManager $dm */
         $dm = $executor->getReferenceRepository()->getManager();
-        $connection = $dm->getConnection();
 
         foreach ($this->getDatabases($dm) as $dbName => $server) {
             $dbHost = $server['host'];
